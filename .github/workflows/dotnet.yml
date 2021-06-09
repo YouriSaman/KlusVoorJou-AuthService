@@ -45,9 +45,6 @@ jobs:
       shell: bash
       run: |
         ./.sonar/scanner/dotnet-sonarscanner begin /k:"YouriSaman_KlusVoorJou-AuthService" /o:"yourisaman" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
-    - uses: actions/checkout@v2
-      with: # Disabling shallow clone is recommended for improving relevancy of reporting
-        fetch-depth: 0
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
