@@ -7,6 +7,7 @@ using AuthService.Models;
 using AuthService.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,11 +18,13 @@ namespace AuthService.Controllers
     {
         private readonly AuthDbContext _dbContext;
         private readonly ITokenBuilder _tokenBuilder;
+        private readonly PasswordHasher<User> _passwordHasher;
 
         public AuthController(AuthDbContext dbContext, ITokenBuilder tokenBuilder)
         {
             _dbContext = dbContext;
             _tokenBuilder = tokenBuilder;
+            _passwordHasher = new PasswordHasher<User>();
         }
 
         [HttpPost("login")]
@@ -36,8 +39,11 @@ namespace AuthService.Controllers
                 return NotFound("User not found.");
             }
 
-            // For testing only: add hashed passwords
-            var isValid = dbUser.Password == user.Password;
+            bool isValid = false;
+            var result = _passwordHasher.VerifyHashedPassword(user, dbUser.Password, user.Password);
+            if (result == PasswordVerificationResult.Success) isValid = true;
+            else if (result == PasswordVerificationResult.SuccessRehashNeeded) isValid = true;
+            else if (result == PasswordVerificationResult.Failed) isValid = false;
 
             if (!isValid)
             {
@@ -46,13 +52,14 @@ namespace AuthService.Controllers
 
             var token = _tokenBuilder.BuildToken(user.Username);
 
-            return Ok(token);
+            return Ok(new {token = token});
         }
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] User user)
         {
             user.Id = Guid.NewGuid();
+            user.Password = _passwordHasher.HashPassword(user, user.Password);
 
             await _dbContext.Users.AddAsync(user);
             await _dbContext.SaveChangesAsync();
