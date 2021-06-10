@@ -2,11 +2,15 @@ apiVersion: v1
 kind: Service
 metadata:
   name: authservice-service
+  namespace: klusvoorjou
 spec:
   selector:
     app: authservice-pod
   ports:
-  - port: 5025
+  - name: "http"
+    port: 5025
     targetPort: 80
-  - port: 5024
+  - name: "https"
+    port: 5024
     targetPort: 443
+  type: LoadBalancer

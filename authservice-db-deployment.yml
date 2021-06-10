@@ -2,7 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: authservice-db-deployment
+  namespace: klusvoorjou
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: authservice-db-pod
@@ -13,20 +15,22 @@ spec:
     spec:
       containers:
       - name: authservice-db-container
-        image: mysql:latest
+        image: mysql:8.0.24
+        args:
+        - --default-authentication-plugin=mysql_native_password
         env:
         - name: MYSQL_ROOT_PASSWORD
           value: 0BacLRU@1h
         resources:
           limits:
-            memory: "128Mi"
+            memory: "512Mi"
             cpu: "500m"
         ports:
         - containerPort: 3306
         volumeMounts:
         - mountPath: /var/lib/mysql
           name: authservice-db-data
-        volumes:
-        - name: authservice-db-data
-          persistentVolumeClaim:
-            claimName: authservice-db-data
+      volumes:
+      - name: authservice-db-data
+        persistentVolumeClaim:
+          claimName: authservice-db-claim
