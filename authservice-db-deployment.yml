@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: authservice-db-deployment
+spec:
+  selector:
+    matchLabels:
+      app: authservice-db-pod
+  template:
+    metadata:
+      labels:
+        app: authservice-db-pod
+    spec:
+      containers:
+      - name: authservice-db-container
+        image: mysql:latest
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: 0BacLRU@1h
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+        - mountPath: /var/lib/mysql
+          name: authservice-db-data
+        volumes:
+        - name: authservice-db-data
+          persistentVolumeClaim:
+            claimName: authservice-db-data

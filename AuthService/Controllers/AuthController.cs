@@ -59,10 +59,17 @@ namespace AuthService.Controllers
         public async Task<IActionResult> Register([FromBody] User user)
         {
             user.Id = Guid.NewGuid();
-            user.Password = _passwordHasher.HashPassword(user, user.Password);
+            try
+            {
+                user.Password = _passwordHasher.HashPassword(user, user.Password);
 
-            await _dbContext.Users.AddAsync(user);
-            await _dbContext.SaveChangesAsync();
+                await _dbContext.Users.AddAsync(user);
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.GetBaseException());
+            }
 
             return Ok(user);
         }

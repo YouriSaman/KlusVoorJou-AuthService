@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: authservice-service
+spec:
+  selector:
+    app: authservice-pod
+  ports:
+  - port: 5025
+    targetPort: 80
+  - port: 5024
+    targetPort: 443
