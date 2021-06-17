@@ -13,6 +13,7 @@ namespace AuthService.DAL
 
         public AuthDbContext(DbContextOptions<AuthDbContext> options) : base(options)
         {
+            Database.Migrate();
         }
     }
 }
